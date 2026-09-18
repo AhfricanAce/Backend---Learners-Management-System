@@ -20,6 +20,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from core.views import CategoryListCreateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
