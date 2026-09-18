@@ -27,4 +27,7 @@ urlpatterns = [
     # Auth Endpoints from PRD
     path('api/auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    # Second wave endpoints starts here:
+    path('api/categories/', CategoryListCreateView.as_view(), name='category_list_create'),
 ]
