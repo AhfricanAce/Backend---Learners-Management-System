@@ -20,7 +20,12 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-from core.views import RegisterView, CategoryListCreateView
+from core.views import (
+    RegisterView,
+    CategoryListCreateView,
+    CourseListCreateView,
+    CourseDetailView
+)
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -36,4 +41,6 @@ urlpatterns = [
 
     # Second wave endpoints starts here:
     path('api/categories/', CategoryListCreateView.as_view(), name='category_list_create'),
+    path('api/courses/', CourseListCreateView.as_view(), name='course_list_create'),
+    path('api/courses/<int:pk>/', CourseDetailView.as_view(), name='course_detail'),
 ]
