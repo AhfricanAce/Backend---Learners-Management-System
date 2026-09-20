@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from .models import Category
+from .models import Category, Lesson
 from .serializers import CategorySerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -9,7 +9,7 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 from .serializers import RegisterSerializer
 from .models import Course
-from .serializers import CourseSerializer
+from .serializers import CourseSerializer, LessonSerializer
 from .permissions import IsInstructor # <-- Custom Security Role Check:
 
 class CategoryListCreateView(ListCreateAPIView):
@@ -43,4 +43,14 @@ class CourseListCreateView(ListCreateAPIView):
 class CourseDetailView(RetrieveUpdateDestroyAPIView):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+class LessonListCreateView(ListCreateAPIView):
+    queryset = Lesson.objects.all()
+    serializer_class = LessonSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+class LessonDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = Lesson.objects.all()
+    serializer_class = LessonSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
