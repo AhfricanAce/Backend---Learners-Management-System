@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Category, Course, StudentProfile, InstructorProfile
+from .models import User, Category, Course, StudentProfile, InstructorProfile, Lesson
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -46,3 +46,13 @@ class CourseSerializer(serializers.ModelSerializer):
             'level', 'status', 'thumbnail', 'created_at'
         ]
         read_only_fields = ['instructor', 'created_at']
+
+class LessonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lesson
+        fields = [
+            'id', 'course',
+            'title', 'description',
+            'video_url', 'file_attachment',
+            'order', 'created_at'
+        ]
