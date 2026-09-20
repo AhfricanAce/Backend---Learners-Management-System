@@ -78,3 +78,19 @@ class Course(models.Model):
 
     def __str__(self):
         return self.title
+
+class Lesson(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons')
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    video_url = models.URLField(blank=True, null=True, help_text="Link to external hosting like Vimeo/YouTube")
+    file_attachment = models.FileField(upload_to='lesson_attachments/', blank=True, null=True)
+    order = models.PositiveIntegerField(default=1, help_text="The sequence number for this lesson in the course")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return f"{self.course.title} - Lesson {self.order}: {self.title}"
+        
