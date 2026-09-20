@@ -33,3 +33,16 @@ class RegisterSerializer(serializers.ModelSerializer):
             StudentProfile.objects.create(user=user)
 
         return user
+
+class CourseSerializer(serializers.ModelSerializer):
+    instructor_name = serializers.CharField(source='instructor.username', read_only=True)
+    category_name = serializers.CharField(source='category.name', read_only=True)
+
+    class Meta:
+        model = Course
+        fields = [
+            'id', 'title', 'description', 'category', 'category_name',
+            'instructor', 'instructor_name', 'duration', 'price',
+            'level', 'status', 'thumbnail', 'created_at'
+        ]
+        read_only_fields = ['instructor', 'created_at']
