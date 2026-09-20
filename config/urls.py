@@ -24,7 +24,9 @@ from core.views import (
     RegisterView,
     CategoryListCreateView,
     CourseListCreateView,
-    CourseDetailView
+    CourseDetailView,
+    LessonListCreateView,
+    LessonDetailView
 )
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -39,8 +41,12 @@ urlpatterns = [
     path('api/auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
-    # Second wave endpoints starts here:
+    # Second wave endpoints starts here: Categories & Courses
     path('api/categories/', CategoryListCreateView.as_view(), name='category_list_create'),
     path('api/courses/', CourseListCreateView.as_view(), name='course_list_create'),
     path('api/courses/<int:pk>/', CourseDetailView.as_view(), name='course_detail'),
+
+    # Lessons:
+    path('api/lessons/', LessonListCreateView.as_view(), name='lesson_list_create'),
+    path('api/lessons/<int:pk>/', LessonDetailView.as_view(), name='lesson_detail'),
 ]
