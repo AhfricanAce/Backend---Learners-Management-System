@@ -3,7 +3,7 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
-from .models import Category, Lesson
+from .models import Category, Lesson, Enrollment
 from .serializers import CategorySerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -11,7 +11,7 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 from .serializers import RegisterSerializer
 from .models import Course
-from .serializers import CourseSerializer, LessonSerializer
+from .serializers import CourseSerializer, LessonSerializer, EnrollmentSerializer
 from .permissions import IsInstructor # <-- Custom Security Role Check:
 
 class CategoryListCreateView(ListCreateAPIView):
@@ -65,3 +65,17 @@ class LessonDetailView(RetrieveUpdateDestroyAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+
+class EnrollmentListCreateView(ListCreateAPIView):
+    queryset = Enrollment.objects.all()
+    serializer_class = EnrollmentSerializer
+
+    # Only authenticated users can enroll or view enrollments
+    # Filter the queryset so students can ONLY see their own enrollments
+    def get_queryset(self):
+        return Enrollment.objects.filter(student=self.request.user)
+
+    def perform_create(self, serializer):
+        # Automatically set the logged-in user as the enrolling student
+        serializer.save(student=self.request.user)
