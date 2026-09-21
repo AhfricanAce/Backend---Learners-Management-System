@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Category, Course, StudentProfile, InstructorProfile, Lesson
+from .models import User, Category, Course, StudentProfile, InstructorProfile, Lesson, Enrollment
 
 
 class LessonSerializer(serializers.ModelSerializer):
@@ -62,3 +62,21 @@ class RegisterSerializer(serializers.ModelSerializer):
             StudentProfile.objects.create(user=user)
 
         return user
+
+class EnrollmentSerializer(serializers.ModelSerializer):
+    course_title = serializers.CharField(source='course.title', read_only=True)
+    student_email = serializers.CharField(source='student.email', read_only=True)
+
+    class Meta:
+        model = Enrollment
+        fields = [
+            'id', 'student', 'student_email', 'course',
+            'course_title', 'enrolled_at', 'is_completed'
+        ]
+        read_only_fields = ['student', 'is_completed']
+
+        def validate(self, data):
+            # Double check via backend logic if enrollment already exists:
+            if Enrollment.objects.filter(student=request.user, course=data['course']).exists():
+                raise serializers.ValidationError("You are already enrolled in this course.")
+            return data
