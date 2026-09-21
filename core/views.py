@@ -10,8 +10,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from .serializers import RegisterSerializer
-from .models import Course
-from .serializers import CourseSerializer, LessonSerializer, EnrollmentSerializer
+from .models import Course, Assignment, AssignmentSubmission
+from .serializers import CourseSerializer, LessonSerializer, EnrollmentSerializer, AssignmentSerializer, AssignmentSubmissionSerializer
 from .permissions import IsInstructor # <-- Custom Security Role Check:
 
 class CategoryListCreateView(ListCreateAPIView):
@@ -91,3 +91,19 @@ class EnrollmentListCreateView(ListCreateAPIView):
         #self.perform_create(serializer)
         #headers = self.get_success_headers(serializer.data)
         #return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class AssignmentListCreateView(ListCreateAPIView):
+    queryset = Assignment.objects.all()
+    serializer_class = AssignmentSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+class AssignmentSubmissionListCreateView(ListCreateAPIView):
+    queryset = AssignmentSubmission.objects.all()
+    serializer_class = AssignmentSubmissionSerializer
+
+    # Filter submissions so students can only track their own file uploads
+    def get_queryset(self):
+        if self.request.user.role == 'INSTRUCTOR':
+            return AssignmentSubmission.objects.all()
+        return AssignmentSubmission.objects.filter(student=self.request.user)
