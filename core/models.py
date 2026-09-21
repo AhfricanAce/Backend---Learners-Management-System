@@ -94,3 +94,15 @@ class Lesson(models.Model):
     def __str__(self):
         return f"{self.course.title} - Lesson {self.order}: {self.title}"
         
+class Enrollment(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='enrollments')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='enrolled_students')
+    enrolled_at = models.DateTimeField(auto_now_add=True)
+    is_completed = models.BooleanField(default=False)
+
+    class Meta:
+        # Prevent a student from signing up for the same course multiple times:
+        unique_together = ('student', 'course')
+
+    def __str__(self):
+        return f"{self.student.username} enrolled in {self.course.title}"
