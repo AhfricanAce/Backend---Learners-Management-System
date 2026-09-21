@@ -13,6 +13,7 @@ from .serializers import RegisterSerializer
 from .models import Course, Assignment, AssignmentSubmission, Quiz, QuizAttempt
 from .serializers import CourseSerializer, LessonSerializer, EnrollmentSerializer, AssignmentSerializer, AssignmentSubmissionSerializer, QuizSerializer, QuizAttemptSerializer
 from .permissions import IsInstructor # <-- Custom Security Role Check:
+from .filters import CourseFilter
 
 class CategoryListCreateView(ListCreateAPIView):
     queryset = Category.objects.all()
@@ -41,8 +42,11 @@ class CourseListCreateView(ListCreateAPIView):
     # Configure the filter engines:
     filter_backends = [DjangoFilterBackend, SearchFilter]
 
+    # FIXED: Connect your advanced multi-field filter class here!
+    filterset_class = CourseFilter
+
     # Exact match filters (e.g. ?level=BEGINNER&category=1):
-    filterset_fields = ['level', 'category', 'status']
+    #filterset_fields = ['level', 'category', 'status']
 
     # Text search filters (e.g. ?search=Python):
     search_fields = ['title', 'description']
