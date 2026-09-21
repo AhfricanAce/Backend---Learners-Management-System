@@ -18,7 +18,6 @@ class AuthTests(APITestCase):
             "username": "teststudent",
             "password": "securepassword123",
             "role": "STUDENT"
-                                                                    }
         }
 
         # Pre-seed one user for testing the login endpoint directly
@@ -42,7 +41,7 @@ class AuthTests(APITestCase):
         Verify that correct credentials successfully return access and refresh JWT tokens.
         """
         login_data = {
-            "username": "existing@lms.com",  # Remember simple JWT maps email to username key
+            "email": "existing@lms.com",  # Remember simple JWT maps email to username key
             "password": "loginpassword123"
         }
         response = self.client.post(self.login_url, login_data, format='json')
