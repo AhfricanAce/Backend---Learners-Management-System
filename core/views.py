@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
@@ -122,3 +122,13 @@ class QuizAttemptListCreateView(ListCreateAPIView):
         if self.request.user.role == 'INSTRUCTOR':
             return QuizAttempt.objects.all()
         return QuizAttempt.objects.filter(student=self.request.user)
+
+
+class InstructorGradeSubmissionView(UpdateAPIView):
+    queryset = AssignmentSubmission.objects.all()
+    serializer_class = AssignmentSubmissionSerializer
+    permission_classes = [IsInstructor]  # <-- Strictly locks down editing rights to teachers
+
+    def perform_update(self, serializer):
+        # Automatically mark the submission as processed and graded upon save
+        serializer.save(is_graded=True)
