@@ -79,3 +79,15 @@ class EnrollmentListCreateView(ListCreateAPIView):
     def perform_create(self, serializer):
         # Automatically set the logged-in user as the enrolling student
         serializer.save(student=self.request.user)
+
+
+    # Add this method to inject the user into the data BEFORE validation happens
+    #def create(self, request, *args, **kwargs):
+        #data = request.data.copy()
+        # Force the student field to be the current authenticated user's ID
+        #data['student'] = request.user.id
+        #serializer = self.get_serializer(data=data)
+        #serializer.is_valid(raise_exception=True)
+        #self.perform_create(serializer)
+        #headers = self.get_success_headers(serializer.data)
+        #return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
