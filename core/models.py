@@ -135,3 +135,48 @@ class AssignmentSubmission(models.Model):
 
     def __str__(self):
         return f"{self.student.username} - Submission for {self.assignment.title}"
+
+
+class Quiz(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='quizzes')
+    title = models.CharField(max_length=255)
+    max_attempts = models.PositiveIntegerField(default=3)
+    pass_percentage = models.PositiveIntegerField(default=50)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "Quizzes"
+
+    def __str__(self):
+        return f"{self.course.title} - Quiz: {self.title}"
+
+
+class QuizQuestion(models.Model):
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions')
+    question_text = models.TextField()
+    # Storing multiple choices inside simple strings for rapid MVP setup
+    option_a = models.CharField(max_length=255)
+    option_b = models.CharField(max_length=255)
+    option_c = models.CharField(max_length=255, blank=True, null=True)
+    option_d = models.CharField(max_length=255, blank=True, null=True)
+
+    class CorrectAnswers(models.TextChoices):
+        A = 'A', 'Option A'
+        B = 'B', 'Option B'
+        C = 'C', 'Option C'
+        D = 'D', 'Option D'
+
+    correct_option = models.CharField(max_length=2, choices=CorrectAnswers.choices)
+
+    def __str__(self):
+        return f"Question for {self.quiz.title}: {self.question_text[:50]}"
+
+class QuizAttempt(models.Model):
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='attempts')
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quiz_attempts')
+    score = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    passed = models.BooleanField(default=False)
+    attempted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.student.username} - {self.quiz.title} (Score: {self.score}%)"
