@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Category, Course, StudentProfile, InstructorProfile, Lesson, Enrollment, Assignment, AssignmentSubmission
+from .models import User, Category, Course, StudentProfile, InstructorProfile, Lesson, Enrollment, Assignment, AssignmentSubmission, Quiz, QuizQuestion, QuizAttempt
 from rest_framework.validators import UniqueTogetherValidator
 
 
@@ -122,3 +122,64 @@ class AssignmentSubmissionSerializer(serializers.ModelSerializer):
                 message="You have already submitted an answer file for this assignment."
             )
         ]
+
+class QuizQuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuizQuestion
+        fields = ['id', 'question_text', 'option_a', 'option_b', 'option_c', 'option_d']
+
+class QuizSerializer(serializers.ModelSerializer):
+    questions = QuizQuestionSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Quiz
+        fields = ['id', 'course', 'title', 'max_attempts', 'pass_percentage', 'questions']
+
+class QuizAttemptSerializer(serializers.ModelSerializer):
+    student = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    # The student will submit answers structured as an array of objects: [{"question_id": 1, "selected_option": "A"}]
+    answers_submitted = serializers.JSONField(write_only=True)
+
+    class Meta:
+        model = QuizAttempt
+        fields = ['id', 'quiz', 'student', 'score', 'passed', 'answers_submitted', 'attempted_at']
+        read_only_fields = ['score', 'passed', 'attempted_at']
+
+
+    def validate(self, data):
+        # Enforce maximum attempt boundary conditions
+        request = self.context.get('request')
+        quiz = data['quiz']
+        attempt_count = QuizAttempt.objects.filter(student=request.user, quiz=quiz).count()
+        if attempt_count >= quiz.max_attempts:
+            raise serializers.ValidationError(f"You have reached the maximum allowed attempts ({quiz.max_attempts}) for this quiz.")
+        return data
+
+    def create(self, validated_data):
+        quiz = validated_data['quiz']
+        student = validated_data['student']
+        answers = validated_data['answers_submitted'] # Array parsed directly from Postman
+
+        total_questions = quiz.questions.count()
+        if total_questions == 0:
+            return QuizAttempt.objects.create(quiz=quiz, student=student, score=0.00, passed=False)
+
+        correct_count = 0
+        for entry in answers:
+            try:
+                question = quiz.questions.get(id=entry.get('question_id'))
+                if question.correct_option == entry.get('selected_option'):
+                    correct_count += 1
+            except QuizQuestion.DoesNotExist:
+                continue # Skip invalid question IDs safely
+
+        # Calculate score percentage
+        final_score = (correct_count / total_questions) * 100
+        has_passed = final_score >= quiz.pass_percentage
+
+        return QuizAttempt.objects.create(
+            quiz=quiz,
+            student=student,
+            score=final_score,
+            passed=has_passed
+        )
