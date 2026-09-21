@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Category, Course, StudentProfile, InstructorProfile, Lesson, Enrollment
+from .models import User, Category, Course, StudentProfile, InstructorProfile, Lesson, Enrollment, Assignment, AssignmentSubmission
 from rest_framework.validators import UniqueTogetherValidator
 
 
@@ -97,5 +97,28 @@ class EnrollmentSerializer(serializers.ModelSerializer):
                 queryset=Enrollment.objects.all(),
                 fields=['student', 'course'],
                 message="You are already enrolled in this course."
+            )
+        ]
+
+class AssignmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Assignment
+        fields = ['id', 'course', 'title', 'description', 'due_date', 'max_marks', 'created_at']
+
+class AssignmentSubmissionSerializer(serializers.ModelSerializer):
+    student_email = serializers.CharField(source='student.email', read_only=True)
+    # Automatically bind the current student context
+    student = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = AssignmentSubmission
+        fields = ['id', 'assignment', 'student', 'student_email', 'submitted_file', 'submitted_at', 'marks_obtained', 'feedback', 'is_graded']
+        read_only_fields = ['marks_obtained', 'feedback', 'is_graded']
+
+        validators = [
+            UniqueTogetherValidator(
+                queryset=AssignmentSubmission.objects.all(),
+                fields=['student', 'assignment'],
+                message="You have already submitted an answer file for this assignment."
             )
         ]
