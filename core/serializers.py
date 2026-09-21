@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import User, Category, Course, StudentProfile, InstructorProfile, Lesson, Enrollment
+from rest_framework.validators import UniqueTogetherValidator
 
 
 class LessonSerializer(serializers.ModelSerializer):
@@ -67,13 +68,17 @@ class EnrollmentSerializer(serializers.ModelSerializer):
     course_title = serializers.CharField(source='course.title', read_only=True)
     student_email = serializers.CharField(source='student.email', read_only=True)
 
+    # FIXED: This line automatically passes the current user into validation!
+    student = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
     class Meta:
         model = Enrollment
         fields = [
             'id', 'student', 'student_email', 'course',
             'course_title', 'enrolled_at', 'is_completed'
         ]
-        read_only_fields = ['student', 'is_completed']
+        
+        read_only_fields = ['is_completed']
 
         #def validate(self, data):
             # Extract the request from context safely
