@@ -10,8 +10,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from .serializers import RegisterSerializer
-from .models import Course, Assignment, AssignmentSubmission
-from .serializers import CourseSerializer, LessonSerializer, EnrollmentSerializer, AssignmentSerializer, AssignmentSubmissionSerializer
+from .models import Course, Assignment, AssignmentSubmission, Quiz, QuizAttempt
+from .serializers import CourseSerializer, LessonSerializer, EnrollmentSerializer, AssignmentSerializer, AssignmentSubmissionSerializer, QuizSerializer, QuizAttemptSerializer
 from .permissions import IsInstructor # <-- Custom Security Role Check:
 
 class CategoryListCreateView(ListCreateAPIView):
@@ -107,3 +107,18 @@ class AssignmentSubmissionListCreateView(ListCreateAPIView):
         if self.request.user.role == 'INSTRUCTOR':
             return AssignmentSubmission.objects.all()
         return AssignmentSubmission.objects.filter(student=self.request.user)
+
+class QuizListCreateView(ListCreateAPIView):
+    queryset = Quiz.objects.all()
+    serializer_class = QuizSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+class QuizAttemptListCreateView(ListCreateAPIView):
+    queryset = QuizAttempt.objects.all()
+    serializer_class = QuizAttemptSerializer
+
+    def get_queryset(self):
+        # Instructors see all score histories; students track only their own marks
+        if self.request.user.role == 'INSTRUCTOR':
+            return QuizAttempt.objects.all()
+        return QuizAttempt.objects.filter(student=self.request.user)
