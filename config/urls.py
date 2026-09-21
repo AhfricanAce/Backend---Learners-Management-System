@@ -30,7 +30,8 @@ from core.views import (
     EnrollmentListCreateView,
     AssignmentListCreateView,
     AssignmentSubmissionListCreateView,
-    QuizListCreateView, QuizAttemptListCreateView
+    QuizListCreateView, QuizAttemptListCreateView,
+    InstructorGradeSubmissionView
 )
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -62,4 +63,8 @@ urlpatterns = [
     # Quiz Routes:
     path('api/quizzes/', QuizListCreateView.as_view(), name='quiz_list_create'),
     path('api/quizzes/attempts/', QuizAttemptListCreateView.as_view(), name='quiz_attempt_list_create'),
+
+    
+    # Final Grading Route
+    path('api/submissions/<int:pk>/grade/', InstructorGradeSubmissionView.as_view(), name='instructor_grade_submission'),
 ]
