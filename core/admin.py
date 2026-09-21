@@ -21,3 +21,11 @@ class CustomUserAdmin(UserAdmin):
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(InstructorProfile)
 admin.site.register(StudentProfile)
+
+# Core Week 2 & 3 Tables
+admin.site.register(Category)
+admin.site.register(Course)
+admin.site.register(Lesson)
+admin.site.register(Quiz)
+admin.site.register(QuizQuestion)
+admin.site.register(QuizAttempt)
