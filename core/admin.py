@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, InstructorProfile, StudentProfile
+from .models import User, InstructorProfile, StudentProfile, Category, Course, Lesson, Quiz, QuizQuestion, QuizAttempt
 
 # Register your models here.
 class CustomUserAdmin(UserAdmin):
