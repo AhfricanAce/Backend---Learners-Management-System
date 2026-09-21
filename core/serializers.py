@@ -76,7 +76,12 @@ class EnrollmentSerializer(serializers.ModelSerializer):
         read_only_fields = ['student', 'is_completed']
 
         def validate(self, data):
-            # Double check via backend logic if enrollment already exists:
-            if Enrollment.objects.filter(student=request.user, course=data['course']).exists():
-                raise serializers.ValidationError("You are already enrolled in this course.")
-            return data
+            # Extract the request from context safely
+            request = self.context.get('request')
+
+            # Fallback check: If context is missing for any reason, use a safe check
+            if request and request.user:
+                user = request.user
+                if Enrollment.objects.filter(student=user, course=data['course']).exists():
+                    raise serializers.ValidationError("You are already enrolled in this course.")
+                return data
